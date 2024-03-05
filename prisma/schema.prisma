@@ -1,0 +1,56 @@
+generator client {
+  provider             = "prisma-client-py"
+  recursive_type_depth = "5"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum LLM {
+  GROQ
+  GPT4
+  GPT3
+}
+
+enum Medium {
+  CHAT
+  VOICECHAT
+  PHONE
+}
+
+enum Language {
+  EN
+  ES
+}
+
+model Conversations {
+  id          String   @id @default(uuid())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  model       LLM
+  medium      Medium
+  language    Language
+  title       String
+  description String
+  messages    Messages[]
+  tokenCount  Int
+}
+
+enum Role {
+  USER
+  BOT
+}
+
+model Messages {
+  id             String       @id @default(uuid())
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  role           Role
+  content        String
+  conversationId String
+  conversations  Conversations @relation(fields: [conversationId], references: [id])
+  tokenCount     Int
+}
